@@ -718,10 +718,16 @@ function endGame() {
   const list=document.getElementById('done-words');
   list.innerHTML='';
   Object.entries(foundWords).sort((a,b)=>b[1]-a[1]).forEach(([w,p])=>addChip(list,w,p));
-  const url=buildShareURL(gameSeed,playerName,score,foundWords);
+  // Merge current player's result into any existing scores already in the URL
+  // so Player 1's data isn't wiped when Player 2 saves their result.
+  const existing = getStateFromURL();
+  const allScores = { ...(existing?.scores || {}) };
+  allScores[playerName] = { score, words: Object.keys(foundWords) };
+  const merged = btoa(unescape(encodeURIComponent(JSON.stringify({ seed: gameSeed, scores: allScores }))));
+  const url = location.href.split('?')[0] + '?s=' + merged;
   document.getElementById('share-url').textContent=url;
   window._shareURL=url;
-  history.replaceState({},'','?s='+encodeState(gameSeed,playerName,score,foundWords));
+  history.replaceState({},'','?s='+merged);
 }
 
 // ── START / JOIN ──────────────────────────────────────────────────────────────
@@ -743,9 +749,11 @@ function startNewGame() {
 
 function joinFromURL() {
   const state=getStateFromURL();
-  if(!state){ const m=document.getElementById('lobby-msg'); m.textContent='No game link found in this URL.'; return; }
+  if(!state||!state.seed){ const m=document.getElementById('lobby-msg'); m.textContent='No game link found in this URL.'; return; }
   playerName=document.getElementById('player-name')?.value?.trim()||'Player 2';
-  window._existingState=state; initGame(state.seed);
+  // Store original state so endGame() can merge both players' scores into the URL
+  window._existingState=state;
+  initGame(state.seed);
 }
 
 function copyLink() {
