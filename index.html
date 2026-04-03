@@ -665,10 +665,28 @@ function addChip(list, word, pts) {
 
 // ── POINTER ───────────────────────────────────────────────────────────────────
 function tileAt(x,y) {
+  // Primary: ask the browser what element is at this exact pixel
   const el=document.elementFromPoint(x,y);
-  if(!el) return -1;
-  const t=el.closest('.tile');
-  return t ? parseInt(t.dataset.idx) : -1;
+  if(el) {
+    const t=el.closest('.tile');
+    if(t) return parseInt(t.dataset.idx);
+  }
+
+  // Fallback: finger landed on a gap — find nearest tile center
+  const wrap=document.getElementById('board-wrap');
+  const tiles=wrap.querySelectorAll('.tile');
+  let closest=-1;
+  let closestDist=40; // ← this is the number to tune
+
+  tiles.forEach((tile,i)=>{
+    const r=tile.getBoundingClientRect();
+    const cx=r.left+r.width/2;
+    const cy=r.top+r.height/2;
+    const dist=Math.hypot(cx-x, cy-y);
+    if(dist<closestDist){ closestDist=dist; closest=i; }
+  });
+
+  return closest;
 }
 
 function setupPointer() {
