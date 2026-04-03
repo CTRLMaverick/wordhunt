@@ -622,8 +622,15 @@ function updateTiles() {
 
 // ── GAME LOGIC ────────────────────────────────────────────────────────────────
 function addToSelection(i) {
-  if (selected.includes(i)) { selected=selected.slice(0,selected.indexOf(i)+1); return; }
-  if (selected.length>0 && !adjacent(selected[selected.length-1],i)) return;
+  if (selected.includes(i)) {
+    const pos = selected.indexOf(i);
+    // only backtrack if it's the tile directly before the current last tile
+    if (pos === selected.length - 2) {
+      selected = selected.slice(0, pos + 1);
+    }
+    return;
+  }
+  if (selected.length > 0 && !adjacent(selected[selected.length-1], i)) return;
   selected.push(i);
 }
 
