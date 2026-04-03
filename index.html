@@ -154,7 +154,7 @@ body {
 .word-display span.valid  { color: #7fe87a; }
 .word-display span.invalid { color: #ff6b6b; }
 
-/* ── GRID ── */
+/* ──  ── */
 .board-wrap {
   position: relative;
   /* slightly larger than tiles to show border glow */
@@ -167,7 +167,7 @@ body {
 .grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  gap: 5px;
   position: relative;
   z-index: 1;
 }
@@ -683,7 +683,7 @@ function tileAt(x,y) {
   const wrap=document.getElementById('board-wrap');
   const tiles=wrap.querySelectorAll('.tile');
   let closest=-1;
-  let closestDist=40; // ← this is the number to tune
+  let closestDist=65; // ← this is the number to tune
 
   tiles.forEach((tile,i)=>{
     const r=tile.getBoundingClientRect();
